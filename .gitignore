@@ -1,0 +1,14 @@
+*.o
+*.elf
+*.map
+*.lst
+*.trace
+*.log
+__pycache__/
+/.cache/
+/build/
+/out/
+
+# MAME runtime state
+/cfg/
+/nvram/

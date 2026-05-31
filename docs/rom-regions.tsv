@@ -1,0 +1,91 @@
+# File ranges are half-open: start <= offset < end.
+# type values are intentionally simple so tools can filter them:
+# code, monitor-code, table, text, font, bitmap, resource, mixed, data, unknown.
+# confidence values: confirmed, probable, rough.
+start	end	type	confidence	segment	label	notes
+0x00000	0x17708	code	probable		spelling-grammar-runtime-code	Code-like 8086 spelling/grammar runtime routines before linguistic tables and suffix records.
+0x17708	0x17810	table	probable		linguistic-character-order-tables	High-byte character ordering/translation tables immediately before visible suffix records.
+0x17810	0x186FE	data	probable		suffix-morphology-records	Visible suffix and morphology fragments including possessive, -ing, -ally, -ation, -ability, and related records.
+0x186FE	0x1884C	data	probable		compact-word-fragment-prelude	Compact visible word-fragment stream before binary/index table bytes resume.
+0x1884C	0x194A6	table	probable		linguistic-index-tables	Binary linguistic index/pointer tables between visible fragment streams, including dense lookup bytes and 16-bit offset-style entries.
+0x194A6	0x1B800	data	probable		compact-word-fragment-stream	Dense compact word-fragment stream visible in low ROM string scans.
+0x1B800	0x1B8DE	table	probable		linguistic-pointer-table	Small binary table immediately before phonetic/substitution string data.
+0x1B8DE	0x1C0EE	data	probable		phonetic-substitution-tables	Phonetic and substitution text tables with compact vowel/consonant pattern fragments.
+0x1C0EE	0x202E6	data	probable		spelling-exception-and-rule-data	Spelling exception and rule data with visible words such as although, doughnut, highlight, and related variants.
+0x202E6	0x20790	table	probable		character-order-and-letter-set-tables	Character order, allowed-character, and letter-set tables.
+0x20790	0x20C40	table	probable		linguistic-index-tables-2	Numeric/index tables preceding a small fragment string table.
+0x20C40	0x20E36	data	probable		fragment-string-tables	Small late string and fragment tables.
+0x20E36	0x20F78	table	probable		linguistic-rule-tables	Compact binary linguistic rule tables before zero padding.
+0x20F78	0x2127C	data	confirmed		zero-padding	Mostly zero-filled padding between linguistic rule tables and late bitmask tables.
+0x2127C	0x21366	table	probable		late-linguistic-bitmask-tables	Late small tables and bitmasks immediately before the next packed-data block.
+0x21366	0x22000	data	confirmed		padding-3f-after-linguistic-tables	All 0x3F padding after low linguistic tables, ending on the next 0x2000-aligned boundary.
+0x22000	0x5AF00	data	probable		packed-dictionary-records	Aligned stream of 0x80-byte packed records; each record mixes dense payload bytes with zero gaps and compact trailing indexes.
+0x5AF00	0x60000	data	confirmed		padding-3f-bank2	Long 0x3F padding run.
+0x60000	0x73760	code	probable	6000	ciet-thesaurus-runtime-code	Code-like CIET/InfoSoft thesaurus engine routines with far calls into shared firmware helpers.
+0x73760	0x73955	table	probable		ciet-resource-index-tables	Small CIET resource/index tables immediately after the thesaurus engine code.
+0x73955	0x73A42	text	confirmed		ciet-english-metadata-strings	CIET English-US metadata, copyright, and part-of-speech/relation strings.
+0x73A42	0x73F48	data	probable		thesaurus-word-fragment-index	Visible compact thesaurus word-fragment list ending before 32-bit offset tables.
+0x73F48	0x74600	table	probable		thesaurus-offset-tables	Monotonic 32-bit offset table for thesaurus resources.
+0x74600	0x74870	data	probable		thesaurus-suffix-rule-records	Compact suffix/rule records with visible endings such as 's, ed, ing, er, ies, ate, and ful.
+0x74870	0x74948	table	probable		thesaurus-character-order-subtable	High-byte character ordering/translation table immediately before thesaurus offset entries.
+0x74948	0x74C04	table	probable		thesaurus-entry-offset-subtable	16-bit offset-style table preceding the packed thesaurus entry stream.
+0x74C04	0x76E8E	data	probable		packed-thesaurus-entry-stream	Dense packed thesaurus entry stream ending at the next character/letter-set table block.
+0x76E8E	0x7726D	table	probable		thesaurus-character-and-letter-set-tables	Letter-frequency, allowed-character, and compact character-set tables.
+0x7726D	0x77458	data	probable		compact-thesaurus-fragment-strings	Small null-separated compact fragment strings.
+0x77458	0x77870	table	probable		thesaurus-rule-bitmask-tables	Rule and bitmask-looking tables following compact fragment strings.
+0x77870	0x77A02	table	probable		character-transform-bitmask-tables	High-bit character maps and 32-bit bitmask tables before markup tags.
+0x77A02	0x77AE0	text	confirmed		thesaurus-markup-tag-strings	Null-terminated markup/tag strings such as <DS>, <SY>, <HY>, <TRADE>, and <{sz}>.
+0x77AE0	0x78098	table	probable		thesaurus-markup-index-tables	Markup/index lookup tables ending immediately before the long 0x3F padding run.
+0x78098	0x80000	data	confirmed		padding-3f-bank3	Long 0x3F padding run.
+0x80000	0xA82CB	data	probable		packed-bank4-payload	Dense packed payload with no stable ASCII strings; bounded by the 0x80000 bank start and repeated trailer at 0xA82CB.
+0xA82CB	0xA8400	data	probable		repeated-bank4-trailer	Repeated five-byte pattern 71 5C 57 15 C5, ending with a final zero byte before padding.
+0xA8400	0xAD000	data	confirmed		padding-3f-before-banked-code	Long 0x3F padding run.
+0xAD000	0xAF346	code	probable	A000	banked-typing-runtime-code	Code-like 8086 routines immediately after padding and before Typin' Time lesson records; near offsets resolve as A000:Dxxx.
+0xAF346	0xB1AA0	text	confirmed		typing-practice-text	Typin' Time practice/test text records beginning with A1 and ending after PGPUNCT.
+0xB1AA0	0xB2A44	table	probable		typing-practice-pointer-tables	Pointer/index tables into the AF34 typing-practice text pool plus option strings before the Typin' Time UI resources.
+0xB2A44	0xB3036	resource	confirmed		typin-time-ui	Typin' Time display-script resources, version text, options, and scoreboard prompts.
+0xB3036	0xB3976	resource	probable		database-app-ui	Built-in database application UI and error strings.
+0xB3976	0xB4000	resource	probable		spreadsheet-app-ui	Built-in spreadsheet application UI and error strings.
+0xB4000	0xBE0CF	code	probable	B400	database-spreadsheet-runtime-code	Code-like built-in database/spreadsheet/application runtime area before erased padding.
+0xBE0CF	0xC0000	data	confirmed		pre-c000-erased-padding	All 0xFF padding before the normal C000 startup window.
+0xC0000	0xC13D0	code	probable	C000	startup-lowio-core	Startup, IRQ stubs, low-level hardware setup, and early dispatch routines before the internal-error display records.
+0xC13D0	0xC1451	resource	confirmed	C000	internal-error-display-records	Display-script records for the internal software error and INT diagnostic prompts.
+0xC1451	0xC287C	code	probable	C000	monitor-file-device-code	Debug/monitor trap helpers plus file/device service code; short trap strings are inline in the executable flow.
+0xC287C	0xC28B8	resource	confirmed	C000	device-access-error-resource	Display-script resource for Error accessing Device. Press any key to cancel.
+0xC28B8	0xC2FD8	code	probable	C000	dos-file-device-helpers	File/device helper routines and DOS-like INT 21h service wrappers before character remap tables.
+0xC2FD8	0xC3078	table	probable	C000	character-remap-tables	Character remap/translation tables referenced by lookup code immediately before and after the table.
+0xC3078	0xC3554	code	probable	C000	keyboard-display-control-code	Keyboard/display control code leading into bitmap and keyboard-layout tables.
+0xC3554	0xC3834	bitmap	probable	C000	display-symbol-bitmaps	Bitmap-like fixed-width symbol graphics used by the keyboard/display control routines.
+0xC3834	0xC3AA2	table	probable	C000	keyboard-layout-keycode-tables	Keyboard layout, shifted character, and keycode mapping tables.
+0xC3AA2	0xC3E20	code	probable	C000	keyboard-input-decode-code	Keyboard input decode and modifier-state code using the preceding keymap tables.
+0xC3E20	0xC3E70	table	probable	C000	keycode-translation-table	Small keycode translation table used by nearby lookup routines.
+0xC3E70	0xC8A28	code	probable	C000	lowio-storage-terminal-code	Low-level input, storage, macro/card, and terminal helper code before the terminal-mode display record.
+0xC8A28	0xC8A58	resource	confirmed	C000	terminal-mode-display-record	Inline terminal-mode display record ending before small terminal state helpers.
+0xC8A58	0xC8AA6	code	confirmed	C000	terminal-mode-state-helpers	Small helpers around terminal mode state byte 0x1106.
+0xC8AA6	0xC8BB0	resource	confirmed	C000	diagnostic-display-record	Diagnostic banner/help display record and embedded command strings.
+0xC8BB0	0xC8C70	code	confirmed	C000	diagnostic-and-card-wrappers	Diagnostic display/call wrappers plus fixed I/O probes at ports 0xE0/0xE1 and 0xEC..0xEF.
+0xC8C70	0xD0000	code	probable	C000	high-c000-firmware-code	Code-like C000-relative firmware routines after diagnostic wrappers; includes small inline dispatch/bitmask tables.
+0xD0000	0xD1A6F	code	probable	D000	document-list-runtime-code	D000-segment document-list/runtime helper code leading up to the document-list template prefix.
+0xD1A6F	0xD1A80	table	probable	D000	document-list-template-prefix	Small binary prefix immediately before the document-list display resource.
+0xD1A80	0xD1ACF	resource	confirmed	D000	document-list-screen-template	Document-list screen template containing LIST OF DOC.
+0xD1ACF	0xD6FA3	mixed	probable	D000	wp-editor-print-file-code-resources	Mixed editor/printing/file helper code and inline resource islands including merge/address, printer escapes, and thesaurus labels.
+0xD6FA3	0xD7183	table	probable	D000	wp-editor-status-tables	High-byte status/control tables immediately before visible editor status-line labels.
+0xD7183	0xD7268	resource	probable	D000	wp-status-and-addressbook-field-resources	Editor status labels and address-book field resources including OFF/CHA/LIN/CAPS, CODE/PRNT/FULL, WAIT, NAME, TEL, FAX, and ADRS.
+0xD7268	0xD789B	code	probable	D000	wp-editor-addressbook-helper-code	Code-like editor/address-book helper routines ending immediately before the startup banner resource.
+0xD789B	0xDBBEB	resource	probable	D000	wp-startup-file-spell-resources	Startup banner, first menu, word-processor UI, file/storage, spell/thesaurus/grammar, DreamLink, and FDD resources.
+0xDBBEB	0xDC000	font	confirmed		t200-main-font	MAME-declared 8x8 font stream for drwrt200.
+0xDC000	0xE04C2	font	probable		additional-font-glyph-streams	Additional fixed-width glyph/bitmap streams after the MAME-declared font; repeated font-like blocks continue up to the E04C code entry.
+0xE04C2	0xF1FE0	code	probable	E04C	application-runtime-code	E04C-segment application runtime code with many calls to C000:3EF9 and local E04C helpers.
+0xF1FE0	0xF4FF0	code	probable	F1FE	file-server-application-code	F1FE-segment code before the FILE SERVER resource label.
+0xF4FF0	0xF5000	resource	confirmed		file-server-label-resource	Small display resource containing FILE SERVER immediately before copy route strings.
+0xF5000	0xF538E	resource	probable		copy-route-and-drive-selector-resources	Copy route strings for built-in/card/disk and unavailable-drive prompts.
+0xF538E	0xF5722	resource	probable		system-applications-romcard-resources	EROMCARD.X, COMMUNICATE/PREFERENCES/ROM CARD, DATABASE/SPREADSHEET/FILE SERVER, system setup, editor preferences, and ROM-card error strings.
+0xF5722	0xF65F8	resource	probable		wp-menu-communication-copy-resources	Word-processor menu, printer/RS-232 setup, symbol allocation, copy direction, DreamLink, FDD, password, and filename-change resources.
+0xF65F8	0xF7D00	resource	probable		organizer-calendar-worldclock-addressbook-resources	Organizer menu, calculator errors, calendar/scheduler/world-clock/address-book display-script resources.
+0xF7D00	0xF7E42	table	probable		address-worldclock-index-tables	Address-book/world-clock index, character-order, and selector tables after address-book UI resources.
+0xF7E42	0xFAF30	data	confirmed		world-clock-city-database	ADDRESS.ODB/ORGAN[ADDRESS] records and world-city/country/timezone database ending after ZURICH/Switzerland.
+0xFAF30	0xFB220	bitmap	probable		world-clock-digit-bitmaps	Large bitmap-like digit glyphs and zero-filled spacing before alarm resource prefix records.
+0xFB220	0xFB640	resource	probable		alarm-resources-before-reset-trampoline	Schedule/daily alarm display-script resources immediately before the reset trampoline.
+0xFB640	0xFB64E	code	confirmed	FB64	reset-trampoline	Reset trampoline sets bank ports 0x16/0x17 and jumps to C000:0000.
+0xFB64E	0xFFFF0	data	confirmed		high-rom-erased-padding	All 0xFF padding before the reset vector.
+0xFFFF0	0x100000	code	confirmed	FFFF	reset-vector	CPU reset vector and trailing bytes.
