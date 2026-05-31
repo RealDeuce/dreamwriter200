@@ -54,15 +54,21 @@ tools/rom2.py strings --start 0xc0000 --end 0x100000 -n 12
 | `0xD8AF2` | `0xD8AF2` | Directory selector includes `Built-in, Card, DreamLink, or FDD`. |
 | `0xD8D60` | `0xD8D60` | Spell-check run screen. |
 | `0xD9002` | `0xD9002` | Work-memory-full copy/move prompt. |
+| `0xD9CD8` | `0xD9CD8` | `FDD-M` label in the DreamLink/FDD storage UI cluster. |
+| `0xD9D3D` | `0xD9D3D` | `Only FDD is available`. |
 
 ## ROM Card, DreamLink, And Organizer
 
 | File offset | Physical | Notes |
 | ---: | ---: | --- |
 | `0xD9CC5` | `0xD9CC5` | DreamLink UI cluster. |
+| `0xF5606` | `0xF5606` | `SAVE ONLY TEXT ON FDD:  {OFF} {ON}` setup preference. |
 | `0xF5676` | `0xF5676` | `Can not open EROMCARD.X`. |
 | `0xF5D3E` | `0xF5D3E` | DreamLink direction/status string. |
+| `0xF5DA2` | `0xF5DA2` | Copy direction resources begin for Built-in/FDD, FDD/Built-in, Card/FDD, FDD/Card, DreamLink/FDD, and FDD/DreamLink. |
 | `0xF5F8E` | `0xF5F8E` | `Only DreamLink is available`. |
+| `0xF6006` | `0xF6006` | `Only FDD is available`. |
+| `0xF601C` | `0xF601C` | `FDD is not available`. |
 | `0xF677E` | `0xF677E` | Calendar display-script text area. |
 | `0xF6AF2` | `0xF6AF2` | Weekly scheduler display-script text area. |
 | `0xF6DAA` | `0xF6DAA` | World Clock display-script text area. |

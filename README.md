@@ -59,6 +59,7 @@ Address, string, glyph, bitmap, direct branch/call, and I/O-scan helpers are in
 | [`docs/rom-regions.tsv`](docs/rom-regions.tsv) | Machine-readable first-pass region map. |
 | [`docs/strings.md`](docs/strings.md) | Initial string/resource landmarks. |
 | [`docs/hardware.md`](docs/hardware.md) | Hardware notes from MAME and first ROM inspection. |
+| [`docs/floppy.md`](docs/floppy.md) | FDD controller, filesystem, RAM work area, and storage-route notes. |
 | [`docs/open-questions.md`](docs/open-questions.md) | Working questions for the next mapping pass. |
 | [`tools/README.md`](tools/README.md) | Command reference for `tools/rom2.py`. |
 

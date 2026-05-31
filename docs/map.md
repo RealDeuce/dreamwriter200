@@ -128,7 +128,15 @@ prove tighter limits.
 | `0xC3834..0xC3AA2` | `0xC3834..0xC3AA2` | Probable keyboard layout, shifted character, and keycode mapping tables. |
 | `0xC3AA2..0xC3E20` | `0xC3AA2..0xC3E20` | Probable keyboard input decode and modifier-state code using the preceding keymap tables. |
 | `0xC3E20..0xC3E70` | `0xC3E20..0xC3E70` | Probable small keycode translation table used by nearby lookup routines. |
-| `0xC3E70..0xC8A28` | `0xC3E70..0xC8A28` | Probable low-level input, storage, macro/card, and terminal helper code before the terminal-mode display record. |
+| `0xC3E70..0xC3F66` | `0xC3E70..0xC3F66` | Probable low-level input, storage, macro/card, and terminal helper code before the storage target services. |
+| `0xC3F66..0xC3F74` | `0xC3F66..0xC3F74` | Confirmed far-call wrapper that saves registers, calls the FDD probe entry at `0xC5900`, and returns far. |
+| `0xC3F74..0xC52BD` | `0xC3F74..0xC52BD` | Confirmed DOS-like `INT 21h` storage target services. The target enum uses `0x08` built-in, `0x09` PC Card, `0x0A` DreamLink, and `0x0B` FDD. |
+| `0xC52BD..0xC5900` | `0xC52BD..0xC5900` | Probable path parser, filename buffer builder, handle-target cache, and built-in/card helpers before the floppy service cluster. |
+| `0xC5900..0xC6A2A` | `0xC5900..0xC6A2A` | Confirmed FDD filesystem/controller code with inline `VMACRO2 INC` and `NTS 2000` markers. This cluster uses N82077AA-compatible ports `0xE2`, `0xE4`, `0xE5`, and `0xE7`, handles 512-byte sector transfers through a buffer at RAM `0x6300`, and scans 0x20-byte directory entries. |
+| `0xC6A2A..0xC733A` | `0xC6A2A..0xC733A` | Probable low-level helper code after the floppy service cluster and before the `INT 21h` dispatch tables. |
+| `0xC733A..0xC73D2` | `0xC733A..0xC73D2` | Confirmed `INT 21h` byte-index table at `0xC733A` and target pointer table at `0xC739A`. |
+| `0xC73D2..0xC7650` | `0xC73D2..0xC7650` | Confirmed DOS-like `INT 21h` dispatcher installed via `C000:0006`; it records `AH` at RAM `0x6F0B`, dispatches selected functions, and returns with `iret`. |
+| `0xC7650..0xC8A28` | `0xC7650..0xC8A28` | Probable low-level helper code after the `INT 21h` wrappers and before the terminal-mode display record. |
 | `0xC8A28..0xC8A58` | `0xC8A28..0xC8A58` | Confirmed terminal-mode display record. |
 | `0xC8A58..0xC8AA6` | `0xC8A58..0xC8AA6` | Confirmed terminal-mode state helpers around RAM byte `0x1106`. |
 | `0xC8AA6..0xC8BB0` | `0xC8AA6..0xC8BB0` | Confirmed diagnostic display record and embedded command strings. |

@@ -59,7 +59,15 @@ start	end	type	confidence	segment	label	notes
 0xC3834	0xC3AA2	table	probable	C000	keyboard-layout-keycode-tables	Keyboard layout, shifted character, and keycode mapping tables.
 0xC3AA2	0xC3E20	code	probable	C000	keyboard-input-decode-code	Keyboard input decode and modifier-state code using the preceding keymap tables.
 0xC3E20	0xC3E70	table	probable	C000	keycode-translation-table	Small keycode translation table used by nearby lookup routines.
-0xC3E70	0xC8A28	code	probable	C000	lowio-storage-terminal-code	Low-level input, storage, macro/card, and terminal helper code before the terminal-mode display record.
+0xC3E70	0xC3F66	code	probable	C000	lowio-storage-pre-fdd-code	Low-level input, storage, macro/card, and terminal helper code before the storage target services.
+0xC3F66	0xC3F74	code	confirmed	C000	fdd-probe-far-wrapper	Far-call wrapper that saves registers, calls the FDD probe entry at 0xC5900, and returns far.
+0xC3F74	0xC52BD	code	confirmed	C000	int21-storage-target-services	DOS-like INT 21h storage target services; target enum uses 0x08 built-in, 0x09 PC Card, 0x0A DreamLink, and 0x0B FDD.
+0xC52BD	0xC5900	code	probable	C000	storage-path-handle-pre-fdd-code	Path parser, filename buffer builder, handle-target cache, and built-in/card helpers before the floppy service cluster.
+0xC5900	0xC6A2A	code	confirmed	C000	floppy-filesystem-fdc-code	FDD filesystem/controller routines with inline VMACRO2/NTS 2000 markers; direct N82077AA-compatible port use at E2/E4/E5/E7, 512-byte sector buffer handling, and 0x20-byte directory entries.
+0xC6A2A	0xC733A	code	probable	C000	lowio-storage-terminal-post-fdd-code	Low-level helper code after the floppy service cluster and before the INT 21h dispatch tables.
+0xC733A	0xC73D2	table	confirmed	C000	int21-dispatch-tables	INT 21h byte-index table at 0xC733A and target pointer table at 0xC739A.
+0xC73D2	0xC7650	code	confirmed	C000	int21-dispatch-handler	DOS-like INT 21h dispatcher installed via C000:0006; records AH at 0x6F0B, dispatches selected functions, and returns with IRET.
+0xC7650	0xC8A28	code	probable	C000	lowio-helper-code-before-terminal	Low-level helper code after the INT 21h wrappers and before the terminal-mode display record.
 0xC8A28	0xC8A58	resource	confirmed	C000	terminal-mode-display-record	Inline terminal-mode display record ending before small terminal state helpers.
 0xC8A58	0xC8AA6	code	confirmed	C000	terminal-mode-state-helpers	Small helpers around terminal mode state byte 0x1106.
 0xC8AA6	0xC8BB0	resource	confirmed	C000	diagnostic-display-record	Diagnostic banner/help display record and embedded command strings.
