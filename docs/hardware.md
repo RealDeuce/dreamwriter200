@@ -22,9 +22,10 @@ inspection. They are not yet board-confirmed.
 ## Keyboard
 
 MAME uses the same 10-row active-high keyboard matrix family as the other
-Nakajima/DreamWriter machines. The T400 notes found raw row cache at
-`6D06..6D0F`; T200 needs confirmation, but the startup code and diagnostic
-strings strongly suggest the same firmware family.
+Nakajima/DreamWriter machines. The confirmed T200 diagnostic chord is
+`F+J+SPACE`: the ROM compares ten bytes at RAM `0x1306..0x130F` with the pattern
+at `C000:147C`, whose set bits match `SPACE`, `F`, and `J` in the MAME input
+matrix. The local MAME driver also keeps a sampled row cache at `6D06..6D0F`.
 
 Synthetic debugger function-key vectors in the MAME input map are:
 

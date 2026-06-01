@@ -133,6 +133,9 @@ sets startup state at `C000:011F`, and writes the second `H` at `C000:0127`.
 The normal startup diagnostic checks call `C000:0ABD` at `C000:01FC`,
 `C000:0230`, and `C000:0275`; that helper calls `C000:1454`, which compares
 the diagnostic key state through `C000:1466` before marking `[1473] = 1995`.
+The confirmed T200 diagnostic chord is `F+J+SPACE`: the compare pattern at
+`C000:147C` is row 1 bit `0x08` (`SPACE`), row 4 bit `0x80` (`F`), and row 8
+bit `0x40` (`J`), matching the MAME keyboard matrix and runtime testing.
 The interrupt-side path at `C000:03FA` can also call `C000:1466`, but normal
 reset keeps interrupts disabled until later `sti` instructions after
 `C000:0127`. Therefore a diagnostic poke of `0000:1005` should not be clobbered
@@ -142,6 +145,37 @@ With the startup value, the stock ROM CARD loader tries `I:EROMCARD.X` first
 and then `H:EROMCARD.X`. The path parser at `0xC52BD` would map `K:...` to FDD
 target `0x0B`, but no normal ROM CARD path found so far writes `0000:1005` to
 `J` or builds `K:EROMCARD.X`.
+
+## How To Test ROM CARD With Floppy
+
+Use the local MAME build, not the system `mame`, because the local binary
+exposes the T200 floppy device:
+
+```sh
+../mame/drwrt400 drwrt200 -skip_gameinfo -flop /path/to/floppy.img
+```
+
+When MAME shows the incomplete-emulation warning, type `OK`. Enter diagnostics
+by holding `F+J+SPACE` and pressing the Power On/Off key. In the default MAME
+mapping this is `End`, but it can be remapped in MAME's input menu.
+
+In diagnostics, set the ROM CARD drive seed to `J`:
+
+```text
+S0000:1005,4A
+```
+
+`4A` is ASCII `J`. The diagnostic help string at `0xC8B11` documents this form
+as `Sxxxx:yyyy,zz  Set memory`; `M0000:1000` can be used to verify the nearby
+RAM contents if needed. Leave diagnostics without resetting or power-cycling.
+The diagnostic parser returns to its caller on cancel/exit keycodes `0x0B`,
+`0x02`, or `0x03`; a reset would rerun startup and rewrite `0000:1005` to `H`.
+
+After returning to the system applications menu, choose `ROM CARD`. With
+`0000:1005 = 'J'`, the existing loader should try `K:EROMCARD.X` first, then
+`J:EROMCARD.X`. The expected positive test result is FDD activity followed by
+loading/executing the floppy's root `EROMCARD.X`; failure to find the file
+should fall through to the existing `Can not open EROMCARD.X` path.
 
 ## Disk Format Clues
 
