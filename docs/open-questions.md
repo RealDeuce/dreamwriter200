@@ -11,8 +11,8 @@
 
 | Question | Current evidence | Next step |
 | --- | --- | --- |
-| Is the diagnostic chord still `F+J+SPACE`? | The diagnostic banner/help cluster exists at `0xC8AB2`, but the chord compare has not been mapped for T200. | Search for the row-cache compare routine and test in MAME with power/NMI wake. |
-| Where is the T200 diagnostic entry routine? | T400 used a warm IRQ path and a C000 compare helper. | Use xrefs around `0xC8AB2` resources and direct calls around keyboard startup. |
+| Is the diagnostic chord still `F+J+SPACE`? | The diagnostic banner/help cluster exists at `0xC8AB2`. The compare helper at `C000:1466` checks ten bytes at RAM `0x1306..0x130F` against the pattern at `C000:147C`, and startup/interrupt paths call it before entering diagnostics. | Decode the keyboard row-cache bytes and test in MAME with power/NMI wake. |
+| What exact wake/reset paths can enter the T200 diagnostic? | Normal startup calls `C000:0ABD` at `C000:01FC`, `C000:0230`, and `C000:0275`; that routes through `C000:1454` / `C000:1466`. The interrupt-side path at `C000:03FA` can also route to the same compare and diagnostic setup, but normal reset has interrupts disabled until after the `0000:1005 = 'H'` writes at `C000:00C0` and `C000:0127`. | Trace which hardware event reaches `C000:03FA`, then verify whether NMI or wake can reach it before retained-RAM startup state is rebuilt. |
 
 ## Storage
 
@@ -29,4 +29,4 @@
 | Question | Current evidence | Next step |
 | --- | --- | --- |
 | How are Typin' Time, Database, and Spreadsheet launched? | UI/resource strings exist around `0xB2A44`, `0xB3036`, and `0xB3976`. | Find menu entries and far-call/load wrappers that enter these built-in apps. |
-| Is `EROMCARD.X` loading compatible with the T400 path? | `Can not open EROMCARD.X` appears at `0xF5676`. | Map nearby ROM-card strings and compare header validation with T400 `EROMCARD.X` notes. |
+| Can the ROM CARD option load `EROMCARD.X` from FDD? | The ROM CARD menu path calls the loader at `E04C:2DDE`. It builds `([0000:1005] + 1):EROMCARD.X`, then `[0000:1005]:EROMCARD.X`, using the filename resource at `0xF538E`; startup initializes `0000:1005` to ASCII `H`, so the normal attempts are `I:EROMCARD.X` and `H:EROMCARD.X`. The byte is a default drive-letter seed whose low nibble matches the target enum, so `K:...` would map to FDD target `0x0B`; however, `AH=0x0E`/`AH=0x19` use `0x133D`, not `0000:1005`, and no normal ROM CARD path found so far writes `0000:1005` to `J` or builds `K:EROMCARD.X`. The diagnostic paths found so far run after the startup `H` writes, so a diagnostic poke of `0000:1005 = 'J'` should survive until a later ROM CARD attempt. | Look for indirect writes to `0000:1005` or alternate loader entry points, then compare the `E04C:2DDE` header/load path with T400 `EROMCARD.X` notes. |

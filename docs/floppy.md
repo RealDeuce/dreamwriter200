@@ -107,6 +107,42 @@ There is also a private service entry: `AH=0xFF`, `BL=0xA5`, `DL=0x0B` enters
 and `0xC6114`. A far-call wrapper at `0xC3F66` saves registers, calls the
 FDD probe entry at `0xC5900`, and returns far.
 
+## ROM CARD Loader Intersection
+
+The system applications menu reaches the ROM CARD option through the menu loop
+around `E04C:3103`. The fourth menu item calls `E04C:2DDE`, which is the
+`EROMCARD.X` loader. That loader builds a path from the low-RAM byte at
+`0000:1005` and the resource string at `0xF538E`:
+
+| Path attempt | Evidence |
+| --- | --- |
+| `([0000:1005] + 1):EROMCARD.X` | `E04C:2DFA..2E27` reads `0000:1005`, increments the byte, appends the string at `0xF538E`, and calls the find/open wrapper at `E04C:E73E`. |
+| `[0000:1005]:EROMCARD.X` | `E04C:2E30..2E45` retries after restoring the unincremented byte from `0000:1005`. |
+| Open/load after a match | `E04C:2ED2..2F4A` opens the matched path through `E04C:E0F0`, reads into `0xCA00` through `E04C:E5CB`, closes through `E04C:E5F1`, and then enters the loaded image via the `C8A5` helper path. |
+
+Startup initializes `0000:1005` to ASCII `H` at `0xC00C0` and again at
+`0xC0127`. The byte acts like a default drive-letter seed: its low nibble
+matches the storage target enum (`H` -> `0x08`, `I` -> `0x09`, `J` -> `0x0A`,
+`K` -> `0x0B`). The DOS-like current-drive services are separate: `AH=0x0E`
+updates `0x133D` / `0x6F51`, and `AH=0x19` reads `0x133D`; neither service
+updates `0000:1005`.
+
+The diagnostic paths found so far run after those startup writes. Reset enters
+`C000:0029` with interrupts disabled, writes the first `H` at `C000:00C0`,
+sets startup state at `C000:011F`, and writes the second `H` at `C000:0127`.
+The normal startup diagnostic checks call `C000:0ABD` at `C000:01FC`,
+`C000:0230`, and `C000:0275`; that helper calls `C000:1454`, which compares
+the diagnostic key state through `C000:1466` before marking `[1473] = 1995`.
+The interrupt-side path at `C000:03FA` can also call `C000:1466`, but normal
+reset keeps interrupts disabled until later `sti` instructions after
+`C000:0127`. Therefore a diagnostic poke of `0000:1005` should not be clobbered
+by startup, but any poke before `C000:0127` would be overwritten.
+
+With the startup value, the stock ROM CARD loader tries `I:EROMCARD.X` first
+and then `H:EROMCARD.X`. The path parser at `0xC52BD` would map `K:...` to FDD
+target `0x0B`, but no normal ROM CARD path found so far writes `0000:1005` to
+`J` or builds `K:EROMCARD.X`.
+
 ## Disk Format Clues
 
 The file code looks FAT-like, but the exact on-disk variant still needs a
@@ -126,6 +162,7 @@ Known FDD-related RAM fields:
 
 | RAM address | Current meaning |
 | ---: | --- |
+| `0x1005` | Default drive-letter seed used by generic path builders; startup writes ASCII `H`, and the ROM CARD loader tries this value plus one before retrying the original value. Low nibble matches the target enum, so `K` would imply FDD target `0x0B`. |
 | `0x15B5` | Error/status code reported by storage routines. |
 | `0x133D` | Current selected storage target/drive. |
 | `0x6300` | 512-byte sector buffer. |
